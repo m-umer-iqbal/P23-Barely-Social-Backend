@@ -36,8 +36,22 @@ mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
 // if we use passport-local package then we have to write more code that i given on passport.org website to setup passport but since we are using passport-local-mongoose package it gives us this line that can do the heavylifting for us and give us this line that cantain that much code of passport website [This comment apply on the below 3 lines]
 passport.use(User.createStrategy());
 // These two lines are used to searilize the user (means making the cookie and storing user authentication data in it) and deserilize means (smashing the cookie to view internal data of the cookie to see how the user is and all of their identifications)
-passport.serializeUser(User.serializeUser()); // if we use 
-passport.deserializeUser(User.deserializeUser());
+// Serialize user: store user._id in session
+passport.serializeUser((user, done) => {
+    done(null, user._id);
+});
+
+// Deserialize user: fetch user from DB
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (err) {
+        done(err);
+    }
+});
+
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -151,22 +165,10 @@ app.get('/auth/google',
 );
 
 app.get('/auth/google/barely-social',
-    passport.authenticate('google', (req, res) => {
-        if (!req.user) {
-            res.status(401).json({
-                success: false,
-                message: "Google authentication failed"
-            });
-        }
-        res.status(200).json({
-            success: true,
-            message: "User Logged In.",
-            user: {
-                fullname: req.user.fullname,
-                email: req.user.email
-            }
-        })
-    })
+    passport.authenticate("google", { failureRedirect: "http://localhost:5173/login" }),
+    (req, res) => {
+        res.redirect("http://localhost:5173/");
+    }
 );
 
 // See Output on port
