@@ -7,6 +7,7 @@ import session from "express-session"
 import passport from 'passport';
 import { User } from "./models/user.js"
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 const app = express()
 const port = 3000
 
@@ -40,7 +41,6 @@ passport.use(User.createStrategy());
 passport.serializeUser((user, done) => {
     done(null, user._id);
 });
-
 // Deserialize user: fetch user from DB
 passport.deserializeUser(async (id, done) => {
     try {
@@ -69,6 +69,21 @@ passport.use(new GoogleStrategy({
             });
     }
 )); // This is for login with google
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET,
+    callbackURL: "http://localhost:3000/auth/facebook/barely-social"
+},
+    function (accessToken, refreshToken, profile, cb) {
+        User.findOrCreate({
+            facebookId: profile.id,
+            fullname: profile.displayName,
+            email: profile.emails?.[0]?.value || ""
+        }, function (err, user) {
+            return cb(err, user);
+        });
+    }
+));
 
 // Routes
 app.get('/', (req, res) => {
@@ -138,8 +153,6 @@ app.post('/login', (req, res, next) => {
 });
 
 app.get('/check-auth', (req, res) => {
-    console.log("User in check auth:", req.user);
-
     if (req.isAuthenticated()) {
         res.status(200).json({
             authenticated: true,
@@ -167,6 +180,19 @@ app.get('/auth/google',
 app.get('/auth/google/barely-social',
     passport.authenticate("google", { failureRedirect: "http://localhost:5173/login" }),
     (req, res) => {
+        res.redirect("http://localhost:5173/");
+    }
+);
+
+app.get('/auth/facebook',
+    passport.authenticate('facebook', {
+        scope: ['email', 'public_profile'] // ✅ Optional: override scopes
+    })
+);
+
+app.get('/auth/facebook/barely-social',
+    passport.authenticate('facebook', { failureRedirect: 'http://localhost:5173/login' }),
+    function (req, res) {
         res.redirect("http://localhost:5173/");
     }
 );
