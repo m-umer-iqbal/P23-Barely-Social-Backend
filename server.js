@@ -8,6 +8,7 @@ import passport from 'passport';
 import { User } from "./models/user.js"
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
+import { Strategy as GitHubStrategy } from 'passport-github2';
 const app = express()
 const port = 3000
 
@@ -56,7 +57,6 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "http://localhost:3000/auth/google/barely-social"
-    // userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
 },
     function (accessToken, refreshToken, profile, cb) {
         User.findOrCreate({
@@ -69,6 +69,7 @@ passport.use(new GoogleStrategy({
             });
     }
 )); // This is for login with google
+
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
@@ -83,7 +84,23 @@ passport.use(new FacebookStrategy({
             return cb(err, user);
         });
     }
-));
+));  // This is for login with facebook
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/github/barely-social"
+},
+    function (accessToken, refreshToken, profile, done) {
+        User.findOrCreate({
+            githubId: profile.id,
+            fullname: profile.displayName,
+            email: profile.emails?.[0]?.value || ""
+        }, function (err, user) {
+            return done(err, user);
+        });
+    }
+)); // this is for login with github
 
 // Routes
 app.get('/', (req, res) => {
@@ -196,6 +213,22 @@ app.get('/auth/facebook/barely-social',
         res.redirect("http://localhost:5173/");
     }
 );
+
+app.get('/auth/github',
+    passport.authenticate('github', {
+        scope: ['user:email'], 
+        customState: 'some-state', 
+        authorizationParams: {
+            prompt: 'select_account'
+        }
+    })
+);
+
+app.get('/auth/github/barely-social',
+    passport.authenticate('github', { failureRedirect: 'http://localhost:5173/login' }),
+    function (req, res) {
+        res.redirect('http://localhost:5173/');
+    });
 
 // See Output on port
 app.listen(port, () => {

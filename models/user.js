@@ -4,6 +4,7 @@ import findOrCreate from "mongoose-findorcreate";
 const userSchema = new mongoose.Schema({
     googleId: { type: String, unique: true, sparse: true },
     facebookId: { type: String, unique: true, sparse: true },
+    githubId: { type: String, unique: true, sparse: true },
     fullname: String,
     username: { type: String, unique: true },
     email: { type: String, unique: true },
