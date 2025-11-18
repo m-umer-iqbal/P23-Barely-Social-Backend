@@ -25,7 +25,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         secure: false, // Set to false for HTTP in development
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        maxAge: 24 * 60 * 1000 // 15 minutes
     }
 })) // by express-session package to make and store sessions
 app.use(passport.initialize()) // by passport to initialize the passport functionality or something I am not sure
@@ -197,7 +197,7 @@ app.get('/auth/google',
 app.get('/auth/google/barely-social',
     passport.authenticate("google", { failureRedirect: "http://localhost:5173/login" }),
     (req, res) => {
-        res.redirect("http://localhost:5173/");
+        res.redirect("http://localhost:5173/home");
     }
 );
 
@@ -210,14 +210,14 @@ app.get('/auth/facebook',
 app.get('/auth/facebook/barely-social',
     passport.authenticate('facebook', { failureRedirect: 'http://localhost:5173/login' }),
     function (req, res) {
-        res.redirect("http://localhost:5173/");
+        res.redirect("http://localhost:5173/home");
     }
 );
 
 app.get('/auth/github',
     passport.authenticate('github', {
-        scope: ['user:email'], 
-        customState: 'some-state', 
+        scope: ['user:email'],
+        customState: 'some-state',
         authorizationParams: {
             prompt: 'select_account'
         }
@@ -227,7 +227,7 @@ app.get('/auth/github',
 app.get('/auth/github/barely-social',
     passport.authenticate('github', { failureRedirect: 'http://localhost:5173/login' }),
     function (req, res) {
-        res.redirect('http://localhost:5173/');
+        res.redirect('http://localhost:5173/home');
     });
 
 // See Output on port
