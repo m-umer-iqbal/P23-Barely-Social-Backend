@@ -5,12 +5,12 @@ const userSchema = new mongoose.Schema({
     googleId: { type: String, unique: true, sparse: true },
     facebookId: { type: String, unique: true, sparse: true },
     githubId: { type: String, unique: true, sparse: true },
-    fullname: String,
+    fullname: { type: String, maxLength: 30 },
     username: { type: String, unique: true },
-    email: { type: String, unique: true },
+    email: { type: String, unique: true, maxLength: 50 },
     password: String,
     profilePicture: String,  // URL to image
-    bio: String,
+    bio: { type: String, maxLength: 150 },
     followers: [mongoose.Schema.Types.ObjectId],   // Array of user IDs who follow this user
     following: [mongoose.Schema.Types.ObjectId],   // Array of user IDs this user follows
 });
