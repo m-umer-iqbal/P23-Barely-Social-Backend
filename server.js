@@ -162,7 +162,8 @@ app.post('/login', (req, res, next) => {
                 user: {
                     username: user.username,
                     fullname: user.fullname,
-                    email: user.email
+                    email: user.email,
+                    bio: req.user.bio
                 }
             });
         });
@@ -177,7 +178,8 @@ app.get('/check-auth', (req, res) => {
             user: {
                 username: req.user.username,
                 fullname: req.user.fullname,
-                email: req.user.email
+                email: req.user.email,
+                bio: req.user.bio
             }
         });
     } else {
@@ -197,7 +199,7 @@ app.get('/auth/google',
 app.get('/auth/google/barely-social',
     passport.authenticate("google", { failureRedirect: "http://localhost:5173/login" }),
     (req, res) => {
-        res.redirect("http://localhost:5173/home");
+        res.redirect("http://localhost:5173/home")
     }
 );
 
