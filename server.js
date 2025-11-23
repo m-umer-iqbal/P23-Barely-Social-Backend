@@ -160,6 +160,7 @@ app.post('/login', (req, res, next) => {
                 success: true,
                 message: "User Logged In.",
                 user: {
+                    id: req.user._id,
                     username: user.username,
                     fullname: user.fullname,
                     email: user.email,
@@ -176,6 +177,7 @@ app.get('/check-auth', (req, res) => {
             authenticated: true,
             message: "User is Authenticated.",
             user: {
+                id: req.user._id,
                 username: req.user.username,
                 fullname: req.user.fullname,
                 email: req.user.email,
@@ -230,7 +232,35 @@ app.get('/auth/github/barely-social',
     passport.authenticate('github', { failureRedirect: 'http://localhost:5173/login' }),
     function (req, res) {
         res.redirect('http://localhost:5173/home');
-    });
+    }
+);
+
+app.post("/update/:slug", async (req, res) => {
+    console.log(req.params.slug)
+    try {
+        await User.findOneAndUpdate(
+            { _id: req.params.slug },
+            { fullname: req.body.fullname, bio: req.body.bio, email: req.body.email }
+        )
+        res.status(200).json({
+            success: true,
+            message: "Profile Updated.",
+            user: {
+                id: req.user._id,
+                username: req.user.username,
+                fullname: req.user.fullname,
+                email: req.user.email,
+                bio: req.user.bio
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({
+            success: false,
+            message: "Update Error."
+        })
+    }
+})
 
 // See Output on port
 app.listen(port, () => {
