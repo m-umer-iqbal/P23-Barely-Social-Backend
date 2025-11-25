@@ -262,6 +262,15 @@ app.post("/update/:slug", async (req, res) => {
     }
 })
 
+app.get('/logout', (req, res, next) => {
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect("http://localhost:5173");
+    });
+});
+
 // See Output on port
 app.listen(port, () => {
     console.log(`http://localhost:${port}`)
