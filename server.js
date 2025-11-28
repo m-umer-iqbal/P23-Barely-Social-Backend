@@ -108,7 +108,6 @@ app.get('/', (req, res) => {
 })
 
 app.post('/create-account', (req, res) => {
-    console.log(req.body)
     User.register({ username: req.body.username, fullname: req.body.fullname, email: req.body.email }, req.body.password, (err, user) => {
         if (err) {
             let message = "Registration Error";
@@ -236,7 +235,6 @@ app.get('/auth/github/barely-social',
 );
 
 app.post("/update/:slug", async (req, res) => {
-    console.log(req.params.slug)
     try {
         await User.findOneAndUpdate(
             { _id: req.params.slug },
@@ -254,7 +252,6 @@ app.post("/update/:slug", async (req, res) => {
             }
         })
     } catch (error) {
-        console.log(error)
         res.status(400).json({
             success: false,
             message: "Update Error."
