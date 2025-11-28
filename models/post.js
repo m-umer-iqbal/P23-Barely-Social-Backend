@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema({
-    author: ObjectId,        // Reference to Users collection
-    content: String,         // Post text content
+    author: mongoose.Schema.Types.ObjectId,        // Reference to Users collection
+    content: { type: String, maxLength: 500 },         // Post text content
     image: String,           // URL to uploaded image (optional)
-    likes: [ObjectId],       // Array of user IDs who liked this post
-    comments: [ObjectId],    // Array of comment IDs (Reference to Comments collection)
+    likes: [mongoose.Schema.Types.ObjectId],       // Array of user IDs who liked this post
+    comments: [mongoose.Schema.Types.ObjectId],    // Array of comment IDs (Reference to Comments collection)
     createdAt: Date,
     updatedAt: Date
 });
