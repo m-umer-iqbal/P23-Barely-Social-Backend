@@ -2,23 +2,15 @@ import express from "express";
 import { Post } from "../models/post.js"
 
 const router = express.Router()
-const getFormattedDate = () => {
-    const date = new Date();
 
-    const options = {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    };
-
-    return date.toLocaleDateString('en-GB', options);
-};
-
-router.post("/:slug", (req, res) => {
+router.post("/:slug", async (req, res) => {
     try {
-        console.log(getFormattedDate())
-        console.log(req.body)
-        console.log(req.params.slug)
+        const post = new Post({
+            author: req.params.slug,
+            content: req.body.content,
+            createdAt: Date.now()
+        })
+        await post.save()
         res.status(200).json({
             success: true,
             message: "Posted Successfully"
