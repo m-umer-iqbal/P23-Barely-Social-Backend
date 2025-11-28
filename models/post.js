@@ -6,8 +6,7 @@ const postSchema = new mongoose.Schema({
     image: String,           // URL to uploaded image (optional)
     likes: [mongoose.Schema.Types.ObjectId],       // Array of user IDs who liked this post
     comments: [mongoose.Schema.Types.ObjectId],    // Array of comment IDs (Reference to Comments collection)
-    createdAt: Date,
-    updatedAt: Date
+    createdAt: Date
 });
 
 export const Post = mongoose.model("Post", postSchema);
