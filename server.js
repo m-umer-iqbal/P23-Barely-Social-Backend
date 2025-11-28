@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
 import session from "express-session"
 
+import { User } from "./models/user.js"
 import passport from "./config/passport.js";
 import { auth } from "./routes/auth.js";
 
