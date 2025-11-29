@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema({
     content: { type: String, maxLength: 500 },         // Post text content
     image: String,           // URL to uploaded image (optional)
     likes: [mongoose.Schema.Types.ObjectId],       // Array of user IDs who liked this post
-    comments: [mongoose.Schema.Types.ObjectId],    // Array of comment IDs (Reference to Comments collection)
+    dislikes: [mongoose.Schema.Types.ObjectId],    // Array of comment IDs (Reference to Comments collection)
     createdAt: Date
 });
 
