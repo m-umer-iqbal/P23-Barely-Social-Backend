@@ -39,4 +39,32 @@ router.get("/", async (req, res) => {
     }
 })
 
+router.get("/update", async (req, res) => {
+    try {
+        const id = req.query.id
+        const reacted = req.query.reacted
+        const count = req.query.count
+        if (reacted === "like") {
+            const updation = await Post.findByIdAndUpdate(id, { likes: count })
+            await updation.save()
+            res.status(200).json({
+                success: true,
+                message: "Likes Updated Successfully"
+            })
+        } else {
+            const updation = await Post.findByIdAndUpdate(id, { dislikes: count })
+            await updation.save()
+            res.status(200).json({
+                success: true,
+                message: "Dislikes Updated Successfully"
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error in Like or Dislike Count Updation"
+        })
+    }
+})
+
 export { router as post };

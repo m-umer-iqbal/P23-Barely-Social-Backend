@@ -4,8 +4,8 @@ const postSchema = new mongoose.Schema({
     author: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     content: { type: String, maxLength: 500 },
     image: String,
-    likes: [mongoose.Schema.Types.ObjectId],
-    dislikes: [mongoose.Schema.Types.ObjectId],
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
 });
 
