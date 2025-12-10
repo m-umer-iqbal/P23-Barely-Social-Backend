@@ -25,7 +25,6 @@ router.post("/:slug", async (req, res) => {
 router.get("/", async (req, res) => {
     try {
         const posts = await Post.find({}).populate("author", "fullname username")
-        console.log(posts)
         res.status(200).json({
             success: true,
             message: "Posts Fetched Successfully",
@@ -43,16 +42,20 @@ router.get("/update", async (req, res) => {
     try {
         const id = req.query.id
         const reacted = req.query.reacted
-        const count = req.query.count
+        const userId = req.query.userId
         if (reacted === "like") {
-            const updation = await Post.findByIdAndUpdate(id, { likes: count })
+            const remove = await Post.findByIdAndUpdate(id, { $pull: { dislikes: userId } })
+            await remove.save()
+            const updation = await Post.findByIdAndUpdate(id, { $push: { likes: userId } })
             await updation.save()
             res.status(200).json({
                 success: true,
                 message: "Likes Updated Successfully"
             })
         } else {
-            const updation = await Post.findByIdAndUpdate(id, { dislikes: count })
+            const remove = await Post.findByIdAndUpdate(id, { $pull: { likes: userId } })
+            await remove.save()
+            const updation = await Post.findByIdAndUpdate(id, { $push: { dislikes: userId } })
             await updation.save()
             res.status(200).json({
                 success: true,
