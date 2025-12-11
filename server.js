@@ -9,6 +9,7 @@ import { User } from "./models/user.js"
 import passport from "./config/passport.js";
 import { auth } from "./routes/auth.js";
 import { post } from "./routes/post.js";
+import { user } from "./routes/user.js";
 
 const app = express()
 const port = 3000
@@ -35,6 +36,7 @@ app.use(passport.session()) // this middleware allow the passport to make and ha
 // Routes
 app.use("/auth", auth);
 app.use("/post", post);
+app.use("/user", user);
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
     .then(() => console.log("Connected to DB"))
