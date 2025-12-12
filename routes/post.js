@@ -89,5 +89,4 @@ router.get("/update", async (req, res) => {
     }
 })
 
-
 export { router as post };
