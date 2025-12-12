@@ -103,7 +103,9 @@ app.post('/login', (req, res, next) => {
                     username: user.username,
                     fullname: user.fullname,
                     email: user.email,
-                    bio: req.user.bio
+                    bio: req.user.bio,
+                    followers: req.user.followers,
+                    following: req.user.following
                 }
             });
         });
@@ -120,7 +122,9 @@ app.get('/check-auth', (req, res) => {
                 username: req.user.username,
                 fullname: req.user.fullname,
                 email: req.user.email,
-                bio: req.user.bio
+                bio: req.user.bio,
+                followers: req.user.followers,
+                following: req.user.following
             }
         });
     } else {
@@ -144,7 +148,9 @@ app.post("/update/:slug", async (req, res) => {
                 username: req.user.username,
                 fullname: req.user.fullname,
                 email: req.user.email,
-                bio: req.user.bio
+                bio: req.user.bio,
+                followers: req.user.followers,
+                following: req.user.following
             }
         })
     } catch (error) {
