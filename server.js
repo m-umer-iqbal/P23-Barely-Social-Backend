@@ -38,10 +38,6 @@ app.use("/auth", auth);
 app.use("/post", post);
 app.use("/user", user);
 
-// mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
-//     .then(() => console.log("Connected to DB"))
-//     .catch(err => console.log("Error in connecting database:" + err.message));
-
 // Routes
 app.get('/', (req, res) => {
     res.send('Barely Social Backend')
