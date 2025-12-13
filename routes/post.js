@@ -105,4 +105,19 @@ router.get("/update", async (req, res) => {
     }
 })
 
+router.get("/delete", async (req, res) => {
+    const postId = req.query.id
+    try {
+        await Post.findByIdAndDelete(postId)
+        res.status(200).json({
+            success: true,
+            message: "Post deleted successfully"
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: true,
+            message: "Error occur in deleting post."
+        })
+    }
+})
 export { router as post };
