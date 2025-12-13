@@ -33,7 +33,6 @@ router.get("/", async (req, res) => {
             const posts = await Post.find({
                 author: { $in: loggedInUserProfile.following }
             }).populate("author", "fullname username");
-            console.log(posts)
             res.status(200).json({
                 success: true,
                 message: "User's Posts Fetched Successfully",
