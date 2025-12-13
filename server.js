@@ -38,9 +38,9 @@ app.use("/auth", auth);
 app.use("/post", post);
 app.use("/user", user);
 
-mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
-    .then(() => console.log("Connected to DB"))
-    .catch(err => console.log("Error in connecting database:" + err.message));
+// mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
+//     .then(() => console.log("Connected to DB"))
+//     .catch(err => console.log("Error in connecting database:" + err.message));
 
 // Routes
 app.get('/', (req, res) => {
@@ -170,7 +170,17 @@ app.get('/logout', (req, res, next) => {
     });
 });
 
-// See Output on port
-app.listen(port, () => {
-    console.log(`http://localhost:${port}`)
-})
+// Connect to database and start server
+mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
+    .then(() => {
+        console.log("Connected to DB");
+        
+        // Start server only after successful database connection
+        app.listen(port, () => {
+            console.log(`Server running at http://localhost:${port}`)
+        });
+    })
+    .catch(err => {
+        console.error("Error in connecting database:", err.message);
+        process.exit(1); // Exit the process with failure code
+    });

@@ -1,5 +1,6 @@
 import express from "express";
 import { Post } from "../models/post.js"
+import { User } from "../models/user.js";
 
 const router = express.Router()
 
@@ -23,17 +24,33 @@ router.post("/:slug", async (req, res) => {
 })
 
 router.get("/", async (req, res) => {
+    const userId = req.query.userId;
+    const category = req.query.category;
+
     try {
-        const posts = await Post.find({}).populate("author", "fullname username")
-        res.status(200).json({
-            success: true,
-            message: "Posts Fetched Successfully",
-            posts: posts
-        })
+        if (category === "following") {
+            const loggedInUserProfile = await User.findById(userId)
+            const posts = await Post.find({
+                author: { $in: loggedInUserProfile.following }
+            }).populate("author", "fullname username");
+            console.log(posts)
+            res.status(200).json({
+                success: true,
+                message: "User's Posts Fetched Successfully",
+                posts: posts
+            })
+        } else {
+            const posts = await Post.find({ author: userId }).populate("author", "fullname username")
+            res.status(200).json({
+                success: true,
+                message: "User's Posts Fetched Successfully",
+                posts: posts
+            })
+        }
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error in Posting"
+            message: "Error in Fetching Posts"
         })
     }
 })
