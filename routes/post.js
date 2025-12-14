@@ -4,6 +4,29 @@ import { User } from "../models/user.js";
 
 const router = express.Router()
 
+router.post("/update-content", async (req, res) => {
+    const postId = req.query.postId;
+    const userId = req.query.userId;
+    try {
+        const post = await Post.findByIdAndUpdate(postId, {
+            author: userId,
+            content: req.body.content,
+            likes: [],
+            dislikes: [],
+            createdAt: new Date().toISOString()
+        })
+        res.status(200).json({
+            success: true,
+            message: "Post Updated Successfully"
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error in Updating Post"
+        })
+    }
+})
+
 router.post("/:slug", async (req, res) => {
     try {
         const post = new Post({
