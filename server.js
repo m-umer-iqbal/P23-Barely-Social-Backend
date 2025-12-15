@@ -4,12 +4,16 @@ import cors from "cors"
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
 import session from "express-session"
+import * as path from "path"
 
 import { User } from "./models/user.js"
 import passport from "./config/passport.js";
 import { auth } from "./routes/auth.js";
 import { post } from "./routes/post.js";
 import { user } from "./routes/user.js";
+
+import { uploadFromMulter } from "./middleware/multer.js"
+import { uploadOnCloudinary } from "./utils/cloudinary.js"
 
 const app = express()
 const port = 3000
@@ -27,11 +31,13 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         secure: false, // Set to false for HTTP in development
-        maxAge: 24 * 60 * 1000 // 15 minutes
+        maxAge: 24 * 60 * 1000 // 24 hours
     }
 })) // by express-session package to make and store sessions
 app.use(passport.initialize()) // by passport to initialize the passport functionality or something I am not sure
 app.use(passport.session()) // this middleware allow the passport to make and handle the sessions
+// For serving uploaded files during development
+app.use('/temp', express.static(path.join(process.cwd(), 'public/temp')))
 
 // Routes
 app.use("/auth", auth);
@@ -101,7 +107,8 @@ app.post('/login', (req, res, next) => {
                     email: user.email,
                     bio: req.user.bio,
                     followers: req.user.followers,
-                    following: req.user.following
+                    following: req.user.following,
+                    profilePicture: req.user.profilePicture
                 }
             });
         });
@@ -120,7 +127,8 @@ app.get('/check-auth', (req, res) => {
                 email: req.user.email,
                 bio: req.user.bio,
                 followers: req.user.followers,
-                following: req.user.following
+                following: req.user.following,
+                profilePicture: req.user.profilePicture
             }
         });
     } else {
@@ -130,32 +138,46 @@ app.get('/check-auth', (req, res) => {
     }
 });
 
-app.post("/update/:slug", async (req, res) => {
+app.post("/update/:slug", uploadFromMulter.single("profilePicture"), async (req, res) => {
     try {
-        await User.findOneAndUpdate(
+        let imageUrl = null;
+
+        // If user uploaded image
+        if (req.file) {
+            const uploadResult = await uploadOnCloudinary(req.file.path);
+            imageUrl = uploadResult;
+        }
+
+        const updateData = {
+            fullname: req.body.fullname,
+            bio: req.body.bio,
+            email: req.body.email,
+        };
+
+        // Only add profilePicture if we have a URL
+        if (imageUrl) {
+            updateData.profilePicture = imageUrl;
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
             { _id: req.params.slug },
-            { fullname: req.body.fullname, bio: req.body.bio, email: req.body.email }
-        )
+            updateData,
+            { new: true }
+        );
+
         res.status(200).json({
             success: true,
-            message: "Profile Updated.",
-            user: {
-                id: req.user._id,
-                username: req.user.username,
-                fullname: req.user.fullname,
-                email: req.user.email,
-                bio: req.user.bio,
-                followers: req.user.followers,
-                following: req.user.following
-            }
-        })
+            message: "Profile Updated",
+            user: updatedUser
+        });
     } catch (error) {
+        console.error("Update error:", error);
         res.status(400).json({
             success: false,
-            message: "Update Error."
-        })
+            message: "Update Error: " + error.message
+        });
     }
-})
+});
 
 app.get('/logout', (req, res, next) => {
     req.logout(function (err) {
@@ -170,7 +192,7 @@ app.get('/logout', (req, res, next) => {
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
     .then(() => {
         console.log("Connected to DB");
-        
+
         // Start server only after successful database connection
         app.listen(port, () => {
             console.log(`Server running at http://localhost:${port}`)
