@@ -5,8 +5,7 @@ const postSchema = new mongoose.Schema({
     content: { type: String, maxLength: 500 },
     image: String,
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    createdAt: { type: Date, default: Date.now }
-});
+    dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
+}, { timestamps: true });
 
 export const Post = mongoose.model("Post", postSchema);

@@ -2,18 +2,23 @@ import express from "express";
 import { Post } from "../models/post.js"
 import { User } from "../models/user.js";
 
+import { uploadFromMulter } from "../middleware/multer.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+
 const router = express.Router()
 
-router.post("/update-content", async (req, res) => {
+router.post("/update-content", uploadFromMulter.single("image"), async (req, res) => {
     const postId = req.query.postId;
     const userId = req.query.userId;
+    let imageUrl = null
+    if (req.file) {
+        imageUrl = await uploadOnCloudinary(req.file.path);
+    }
     try {
         const post = await Post.findByIdAndUpdate(postId, {
             author: userId,
             content: req.body.content,
-            likes: [],
-            dislikes: [],
-            createdAt: new Date().toISOString()
+            image: imageUrl
         })
         res.status(200).json({
             success: true,
@@ -27,12 +32,21 @@ router.post("/update-content", async (req, res) => {
     }
 })
 
-router.post("/:slug", async (req, res) => {
+router.post("/:slug", uploadFromMulter.single("image"), async (req, res) => {
     try {
+        let imageUrl = null;
+        // If user uploaded image
+        if (req.file) {
+            const uploadResult = await uploadOnCloudinary(req.file.path);
+            imageUrl = uploadResult;
+        }
         const post = new Post({
             author: req.params.slug,
-            content: req.body.content
+            content: req.body.content,
         })
+        if (imageUrl) {
+            post.image = imageUrl
+        }
         await post.save()
         res.status(200).json({
             success: true,
