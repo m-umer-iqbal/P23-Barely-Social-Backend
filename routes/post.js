@@ -61,8 +61,18 @@ router.get("/", async (req, res) => {
                 message: "User's Posts Fetched Successfully",
                 posts: posts
             })
-        } else {
+        } else if (category === "myPosts") {
             const posts = await Post.find({ author: userId }).populate("author", "fullname username profilePicture")
+            res.status(200).json({
+                success: true,
+                message: "User's Posts Fetched Successfully",
+                posts: posts
+            })
+        } else {
+            const loggedInUserProfile = await User.findById(userId)
+            const posts = await Post.find({
+                author: { $nin: [...loggedInUserProfile.following, userId] }
+            }).populate("author", "fullname username profilePicture");
             res.status(200).json({
                 success: true,
                 message: "User's Posts Fetched Successfully",
