@@ -21,53 +21,98 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/barely-social"
-},
-    function (accessToken, refreshToken, profile, cb) {
-        User.findOrCreate({
-            googleId: profile.id,
-            fullname: profile.displayName,
-            email: profile.emails[0].value,
-        },
-            function (err, user) {
-                return cb(err, user);
+passport.use(new GoogleStrategy(
+    {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: "http://localhost:3000/auth/google/barely-social"
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            let user = await User.findOne({ googleId: profile.id });
+
+            if (user) {
+                return done(null, user);
+            }
+
+            user = await User.create({
+                googleId: profile.id,
+                fullname: profile.displayName,
+                email: profile.emails[0].value,
+                username: profile.displayName,
+                profilePicture: profile.photos?.[0]?.value
             });
-    }
-)); // This is for login with google
 
-passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_APP_ID,
-    clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://localhost:3000/auth/facebook/barely-social"
-},
-    function (accessToken, refreshToken, profile, cb) {
-        User.findOrCreate({
-            facebookId: profile.id,
-            fullname: profile.displayName,
-            email: profile.emails?.[0]?.value || ""
-        }, function (err, user) {
-            return cb(err, user);
-        });
-    }
-));  // This is for login with facebook
+            return done(null, user);
 
-passport.use(new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/github/barely-social"
-},
-    function (accessToken, refreshToken, profile, done) {
-        User.findOrCreate({
-            githubId: profile.id,
-            fullname: profile.displayName,
-            email: profile.emails?.[0]?.value || ""
-        }, function (err, user) {
-            return done(err, user);
-        });
+        } catch (err) {
+            return done(err, null);
+        }
     }
-)); // this is for login with github
+));
+
+
+passport.use(new FacebookStrategy(
+    {
+        clientID: process.env.FACEBOOK_APP_ID,
+        clientSecret: process.env.FACEBOOK_APP_SECRET,
+        callbackURL: "http://localhost:3000/auth/facebook/barely-social",
+        profileFields: ['id', 'displayName', 'photos', 'email']
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            let user = await User.findOne({ facebookId: profile.id });
+
+            if (user) {
+                return done(null, user);
+            }
+
+            user = await User.create({
+                facebookId: profile.id,
+                fullname: profile.displayName,
+                email: profile.emails?.[0]?.value || null,
+                profilePicture: profile.photos?.[0]?.value,
+                username: profile.displayName
+            });
+
+            return done(null, user);
+
+        } catch (err) {
+            return done(err, null);
+        }
+    }
+));
+
+
+passport.use(new GitHubStrategy(
+    {
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: "http://localhost:3000/auth/github/barely-social",
+        scope: ['user:email']
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            let user = await User.findOne({ githubId: profile.id });
+
+            if (user) {
+                return done(null, user);
+            }
+
+            user = await User.create({
+                githubId: profile.id,
+                fullname: profile.displayName || profile.username,
+                email: profile.emails?.[0]?.value || null,
+                username: profile.username || profile.displayName,
+                profilePicture: profile.photos?.[0]?.value
+            });
+
+            return done(null, user);
+
+        } catch (err) {
+            return done(err, null);
+        }
+    }
+));
 
 export default passport;
