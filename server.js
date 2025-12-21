@@ -56,13 +56,13 @@ app.post('/create-account', (req, res) => {
             if (err.name === "UserExistsError") {
                 message = "User Already Exist."
             }
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: message
             })
         } else {
             passport.authenticate("local")(req, res, () => {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                     message: "User registered and logged in",
                     user: {
@@ -79,25 +79,25 @@ app.post('/create-account', (req, res) => {
 app.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Error in authentication process."
             })
         }
         if (!user) {
-            res.status(401).json({
+            return res.status(401).json({
                 success: false,
                 message: "Invalid username or password."
             })
         }
         req.login(user, (err) => {
             if (err) {
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
                     message: "Error creating session."
                 })
             }
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: "User Logged In.",
                 user: {
@@ -117,7 +117,7 @@ app.post('/login', (req, res, next) => {
 
 app.get('/check-auth', (req, res) => {
     if (req.isAuthenticated()) {
-        res.status(200).json({
+        return res.status(200).json({
             authenticated: true,
             message: "User is Authenticated.",
             user: {
@@ -132,7 +132,7 @@ app.get('/check-auth', (req, res) => {
             }
         });
     } else {
-        res.status(401).json({
+        return res.status(401).json({
             authenticated: false
         });
     }
@@ -165,14 +165,14 @@ app.post("/update/:slug", uploadFromMulter.single("profilePicture"), async (req,
             { new: true }
         );
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Profile Updated",
             user: updatedUser
         });
     } catch (error) {
         console.error("Update error:", error);
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: "Update Error: " + error.message
         });
@@ -184,7 +184,7 @@ app.get('/logout', (req, res, next) => {
         if (err) {
             return next(err);
         }
-        res.redirect("http://localhost:5173");
+        return res.redirect("http://localhost:5173");
     });
 });
 
