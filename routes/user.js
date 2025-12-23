@@ -4,20 +4,53 @@ import { User } from "../models/user.js"
 const router = express.Router()
 
 router.get("/", async (req, res) => {
+    const category = req.query.category;
+    const userId = req.query.userId;
+
     try {
-        const users = await User.find({})
+        let users = [];
+        let msg = ""
+
+        if (category === "follow") {
+            // Strangers: Users you are NOT following
+            // Get users who are NOT in your following list AND not yourself
+            const currentUser = await User.findById(userId);
+            const followingIds = currentUser.following.map(id => id.toString());
+
+            users = await User.find({
+                _id: {
+                    $ne: userId,
+                    $nin: followingIds  // Exclude users you're already following
+                }
+            });
+            msg = "Users fetched successfully"
+        }
+        
+        if (category === "following") {
+            // Following: Users you ARE following
+            // Get users whose IDs are in your following array
+            const currentUser = await User.findById(userId);
+            const followingIds = currentUser.following.map(id => id.toString());
+            
+            users = await User.find({
+                _id: { $in: followingIds }
+            });
+            msg = "Following Users fetched successfully"
+        }
+
         res.status(200).json({
             success: true,
-            message: "Users fetched successfully",
+            message: msg,
             usersList: users
-        })
+        });
+
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error Occur in Fetching Users"
-        })
+            message: "Error occurred while fetching users"
+        });
     }
-})
+});
 
 router.get("/follow", async (req, res) => {
     try {

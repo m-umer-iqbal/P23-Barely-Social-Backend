@@ -72,14 +72,14 @@ router.get("/", async (req, res) => {
             }).populate("author", "fullname username profilePicture");
             res.status(200).json({
                 success: true,
-                message: "User's Posts Fetched Successfully",
+                message: "Following Person's Posts Fetched Successfully",
                 posts: posts
             })
         } else if (category === "myPosts") {
             const posts = await Post.find({ author: userId }).populate("author", "fullname username profilePicture")
             res.status(200).json({
                 success: true,
-                message: "User's Posts Fetched Successfully",
+                message: "My Posts Fetched Successfully",
                 posts: posts
             })
         } else {
@@ -89,7 +89,7 @@ router.get("/", async (req, res) => {
             }).populate("author", "fullname username profilePicture");
             res.status(200).json({
                 success: true,
-                message: "User's Posts Fetched Successfully",
+                message: "Stranger's Posts Fetched Successfully",
                 posts: posts
             })
         }
@@ -147,7 +147,7 @@ router.get("/update", async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Error in Like/Dislike Updation"
+            message: "Error in Updating Reaction"
         })
     }
 })

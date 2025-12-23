@@ -64,7 +64,7 @@ app.post('/create-account', (req, res) => {
             passport.authenticate("local")(req, res, () => {
                 return res.status(200).json({
                     success: true,
-                    message: "User registered and logged in",
+                    message: "Account Created Successfully",
                     user: {
                         username: req.user.username,
                         fullname: req.user.fullname,
