@@ -16,7 +16,7 @@ import { uploadFromMulter } from "./middleware/multer.js"
 import { uploadOnCloudinary } from "./utils/cloudinary.js"
 
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 // Middlewares
 app.use(cors({
