@@ -6,8 +6,8 @@ const userSchema = new mongoose.Schema({
     facebookId: { type: String, unique: true, sparse: true },
     githubId: { type: String, unique: true, sparse: true },
     fullname: { type: String, maxLength: 30 },
-    username: { type: String, unique: true },
-    email: { type: String, unique: true, maxLength: 50 },
+    username: { type: String },
+    email: { type: String, maxLength: 50 },
     password: String,
     profilePicture: String,  // URL to image
     bio: { type: String, maxLength: 150 },
