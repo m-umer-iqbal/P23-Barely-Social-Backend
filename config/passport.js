@@ -21,6 +21,15 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
+//Helper Function
+const formatUsername = (displayName = "") => {
+    return displayName
+        .toLowerCase()          // lowercase
+        .replace(/\s+/g, "")    // remove spaces
+        .replace(/[^a-z0-9]/g, "") // remove special chars (optional but recommended)
+        .slice(0, 16);          // max 16 chars
+};
+
 passport.use(new GoogleStrategy(
     {
         clientID: process.env.GOOGLE_CLIENT_ID,
@@ -39,7 +48,7 @@ passport.use(new GoogleStrategy(
                 googleId: profile.id,
                 fullname: profile.displayName,
                 email: profile.emails[0].value,
-                username: profile.displayName,
+                username: formatUsername(profile.displayName),
                 profilePicture: profile.photos?.[0]?.value
             });
 
@@ -72,7 +81,7 @@ passport.use(new FacebookStrategy(
                 fullname: profile.displayName,
                 email: profile.emails?.[0]?.value || null,
                 profilePicture: profile.photos?.[0]?.value,
-                username: profile.displayName
+                username: formatUsername(profile.displayName)
             });
 
             return done(null, user);
@@ -103,7 +112,7 @@ passport.use(new GitHubStrategy(
                 githubId: profile.id,
                 fullname: profile.displayName || profile.username,
                 email: profile.emails?.[0]?.value || null,
-                username: profile.username || profile.displayName,
+                username: formatUsername(profile.username) || formatUsername(profile.displayName),
                 profilePicture: profile.photos?.[0]?.value
             });
 
